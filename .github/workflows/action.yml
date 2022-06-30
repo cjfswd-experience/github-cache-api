@@ -1,0 +1,35 @@
+name: Generate cache file  
+
+on:
+  # Triggers the workflow everyday
+  schedule:
+  - cron: '*/10 6-23 * * *'
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: app
+    name: build and push
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.11
+    - name: 'Create env file'
+      run: |
+          touch .env
+          echo GH_TOKEN=${{ secrets.GH_TOKEN }} >> .env
+          cat .env
+    - name: install dependencies
+      run: npm install
+    - name: build
+      run: npm run build # The build command of your project
+    - name: start
+      run: npm run start # The build command of your project
+    - name: push
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_options: '--amend --no-edit'
+        push_options: '--force'
